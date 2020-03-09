@@ -7,7 +7,7 @@
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         xmlns:cal="http://www.caliburnproject.org"
         mc:Ignorable="d"
-        Title="ShellView" Height="450" Width="800">
+        Title="ShellView" Height="500" Width="600">
 
     <Window.Resources>
 
@@ -164,7 +164,7 @@
                 <MenuItem Header="Help">
                     <MenuItem Header="Nápověda tahu"/>
                     <Separator />
-                    <MenuItem Header="Pravidla" />
+                    <MenuItem x:Name="OpenRules" Header="Pravidla" />
                 </MenuItem>
             </Menu>
             <StatusBar DockPanel.Dock="Bottom" Height="23" VerticalAlignment="Bottom">
@@ -172,6 +172,9 @@
                     Player on turn: 
                 </TextBlock>                
                 <TextBlock x:Name="PlayerOnTurn" />
+                <Button x:Name="Selection" VerticalAlignment="Center" FontSize="9" Padding="5 0" Visibility="{Binding IsAI, Mode=OneWay}">Odpálit tah AI</Button>
+                <ProgressBar  Visibility="{Binding IsAI, Mode=OneWay}"  IsIndeterminate="{Binding Thinking, Mode=OneWay}"  Height="5" VerticalAlignment="Center" Width="100"/>
+                
             </StatusBar>
             <Grid DockPanel.Dock="Top" Background="White">
                 <Grid.ColumnDefinitions>
@@ -179,15 +182,15 @@
                     <ColumnDefinition Width="200" />
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="2" Orientation="Vertical">
-                    <GroupBox>
+                    <GroupBox Margin="5 0 5 5">
                         <StackPanel>
-                            <TextBlock>Vybrané pole:</TextBlock>
-                            <TextBlock x:Name="SelectedPosition"></TextBlock>
+                            <TextBlock>Game Status:</TextBlock>
+                            <TextBlock x:Name="GameStatus"></TextBlock>
                         </StackPanel>
                     </GroupBox>
                     <GroupBox Header="Move History" Margin="5 0 5 5">
                         <StackPanel Orientation="Vertical">
-                            <DataGrid Margin="5 5 5 5" Height="300" ItemsSource="{Binding Path = SelectedBoardItem}" x:Name="ChessGridItems" />
+                            <DataGrid Margin="5 5 5 5" Height="250" ItemsSource="{Binding Path = SelectedBoardItem}" x:Name="ChessGridItems" />
                             <Button x:Name="Undo" Content="Undo" />
                             <Button x:Name="Redo" Content="Redo" />
                             <TextBlock x:Name="SelectedBoardItem"></TextBlock>
@@ -209,6 +212,7 @@
 
 
                 </ListView>
+                
 
 
 

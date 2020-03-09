@@ -4,6 +4,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows;
+using System.Windows.Controls;
 using static EvadeWithGUI.GameConstants;
 
 namespace EvadeWithGUI.ViewModels
@@ -19,6 +20,8 @@ namespace EvadeWithGUI.ViewModels
         {
             worker.DoWork += worker_DoWork;
             worker.RunWorkerCompleted += worker_RunWorkerCompleted;
+            worker.WorkerSupportsCancellation = true;
+
             gm.StartGame();
             BoardItems = new ObservableCollection<BoardItem>();
             AddUnitsFromGameBoard(BoardItems);
@@ -82,6 +85,15 @@ namespace EvadeWithGUI.ViewModels
 
         }
 
+        public string GameStatus
+        {
+            get
+            {
+                return gm.GameStatus;
+            }
+
+        }
+
         public string PlayerOnTurn
         {
             get
@@ -91,13 +103,45 @@ namespace EvadeWithGUI.ViewModels
 
         }
 
+        public Visibility IsAI
+        {
+            get
+            {
+                return VisConvert((bool)gm.PlayerOnTurn.IsAI);
+            }
+
+        }
+
+        public Visibility VisConvert(bool value)
+        {
+            bool bValue = (bool)value;
+            return (bValue) ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+
+        public bool Thinking
+        {
+            get
+            {
+                if (worker.IsBusy)
+                    return true;
+                else
+                    return false;
+            }
+
+        }
+
+
 
         public void Selection(BoardItem sender)
         {
             if(!worker.IsBusy)
             {
                 if (gm.PlayerOnTurn.IsAI)
+                {
                     worker.RunWorkerAsync();
+                    NotifyOfPropertyChange(() => Thinking);
+                }
                 else
                 {
                     gm.GetInput(sender.Row, sender.Col);
@@ -107,12 +151,20 @@ namespace EvadeWithGUI.ViewModels
 
         }
 
+        public void OpenRules()
+        {
+            
+        }
+
         public void ReloadUI()
         {
             AddUnitsFromGameBoard(BoardItems);
             NotifyOfPropertyChange(() => BoardItems);
             NotifyOfPropertyChange(() => PlayerOnTurn);
+            NotifyOfPropertyChange(() => GameStatus);
             NotifyOfPropertyChange(() => SelectedPosition);
+            NotifyOfPropertyChange(() => IsAI);
+            NotifyOfPropertyChange(() => Thinking);
         }
 
         private void worker_DoWork(object sender, DoWorkEventArgs e)

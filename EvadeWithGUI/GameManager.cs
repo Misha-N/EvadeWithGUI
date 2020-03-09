@@ -23,6 +23,8 @@ namespace EvadeWithGUI
         public bool GameInProgress { get; set; }
         public string GameStatus { get; set; }
 
+
+
         private string _selectedPosition;
         public string SelectedPosition
         {
@@ -67,6 +69,7 @@ namespace EvadeWithGUI
                 }
                 if (PlayerOnTurn.Finished)
                 {
+                    PlayerOnTurn.PlayerMove.ForEach(Console.Write);
                     PlayerOnTurn.Finished = false;
                     CheckEndGame();
                     EndTurn();
@@ -77,8 +80,8 @@ namespace EvadeWithGUI
         public void SetGame()
         {
             // new Player(color, AI?, IQ (1 - 4))
-            PlayerOne = new Player((int)GameConstants.PlayerColor.Black, false, 3);
-            PlayerTwo = new Player((int)GameConstants.PlayerColor.White, true, 3);
+            PlayerOne = new Player((int)GameConstants.PlayerColor.Black, true, 4);
+            PlayerTwo = new Player((int)GameConstants.PlayerColor.White, true, 2);
             PlayerOnTurn = PlayerOne;
             GameInProgress = true;
             GameStatus = "In progress.";
