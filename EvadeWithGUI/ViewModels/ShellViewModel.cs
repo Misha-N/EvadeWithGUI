@@ -1,14 +1,20 @@
 ﻿using Caliburn.Micro;
 using EvadeWithGUI.Models;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Globalization;
 using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
+using System.Xml.Linq;
 using static EvadeWithGUI.GameConstants;
 
 namespace EvadeWithGUI.ViewModels
@@ -93,6 +99,7 @@ namespace EvadeWithGUI.ViewModels
         public void Cancel()
         {
             cancellationTokenSource.Cancel();
+            cancellationTokenSource = new CancellationTokenSource();
         }
 
         public Visibility IsAI
@@ -264,6 +271,7 @@ namespace EvadeWithGUI.ViewModels
 
         public void OpenSettings()
         {
+            Cancel();
             ActivateItem(new SettingsViewModel(this, gm));
         }
 
@@ -295,6 +303,7 @@ namespace EvadeWithGUI.ViewModels
 
         public void OpenRules()
         {
+            Cancel();
             string path = System.IO.Directory.GetCurrentDirectory() + @"\Evade.pdf";
             System.Diagnostics.Process.Start(path);
         }
@@ -333,6 +342,152 @@ namespace EvadeWithGUI.ViewModels
 
 
 
+        public void SaveGame()
+        {
+            Cancel();
+
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "XML document|*.xml";
+            saveFileDialog.FileName = "Game";
+            saveFileDialog.DefaultExt = "xml";
+
+            XDocument xmlDoc = new XDocument(
+                new XElement("Game",
+                    new XElement("Setting",
+                        new XElement("IsBlackAI", gm.PlayerOne.IsAI),
+                        new XElement("IsWhiteAI", gm.PlayerTwo.IsAI),
+                        new XElement("BlackDifficulty", (int)gm.PlayerOne.IQ),
+                        new XElement("WhiteDifficulty", (int)gm.PlayerTwo.IQ)
+
+                    ),
+                    ExportMoveHistoryToXML().Element("MoveHistory"))
+            );
+
+
+            try
+            {
+                if (saveFileDialog.ShowDialog() == true)
+                {
+                    xmlDoc.Save(saveFileDialog.FileName);
+                }
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show($"Unable to save file \n{e.Message}", "Save game error", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+
+        }
+
+        private XDocument ExportMoveHistoryToXML()
+        {
+            XDocument xmlDoc = new XDocument(new XElement("MoveHistory"));
+
+            string output = "";
+            foreach (var list in gm.GameHistory)
+            {
+                list.ForEach((i) => output += i.ToString());
+                xmlDoc.Root.Add(new XElement("Move", output));
+                output = "";
+            }
+
+            return xmlDoc;
+        }
+
+        
+
+        public void LoadGame()
+        {
+            Cancel();
+
+            OpenFileDialog openFileDlg = new OpenFileDialog();
+            openFileDlg.DefaultExt = ".xml";
+            openFileDlg.Filter = "XML Files (*.xml)|*.xml";
+
+            GameManager tempgm = new GameManager();
+            tempgm.StartGame();
+            List<List<string>> moveList = new List<List<string>>();
+            XDocument xmlDoc = new XDocument();
+
+            try
+            {
+                if (openFileDlg.ShowDialog() == true)
+                {
+                    xmlDoc = XDocument.Load(openFileDlg.FileName);
+
+
+                    moveList.AddRange(xmlDoc.Descendants("Move")
+                        .Select(element => element.Value
+                            .Select(x => x.ToString())
+                            .ToList<string>()));
+
+                    gm.PlayerOne.IsAI = xmlDoc.Descendants("IsBlackAI")
+                        .Select(element => bool.Parse(element.Value.ToString()))
+                        .FirstOrDefault();
+
+                    gm.PlayerTwo.IsAI = xmlDoc.Descendants("IsWhiteAI")
+                        .Select(element => bool.Parse(element.Value.ToString()))
+                        .FirstOrDefault();
+
+                    var aiLevelW = xmlDoc.Descendants("WhiteDifficulty")
+                        .Select(element => int.Parse(element.Value.ToString()))
+                        .FirstOrDefault();
+
+                    var aiLevelB = xmlDoc.Descendants("BlackDifficulty")
+                        .Select(element => int.Parse(element.Value.ToString()))
+                        .FirstOrDefault();
+
+                    if(!tempgm.PlayMoveHistory(MagicParse(moveList)))
+                        throw new System.InvalidOperationException("Invalid move list.");
+
+
+
+                    if (((aiLevelW + aiLevelB) % 1) == 0 &&
+                        aiLevelW > 0 && aiLevelW <= 4 &&
+                        aiLevelB > 0 && aiLevelB <= 4)
+                    {
+                        gm.PlayerOne.IQ = aiLevelB;
+                        gm.PlayerTwo.IQ = aiLevelW;
+                    }
+                    else
+                        throw new System.InvalidOperationException("Invalid AI setting.");
+
+                    gm = tempgm;
+                    ReloadUI();
+
+
+                }
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show($"Unable to load file \n{e.Message}", "Load game error", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+
+        public List<List<int>> MagicParse(List<List<string>> input)
+        {
+            List<List<int>> result = new List<List<int>>();
+            foreach (List<string> list in input)
+            {
+                List<int> tempList = new List<int>();
+
+                for (int i = 0; i < list.Count; i++)
+                {
+                    if (list[i] == "-")
+                    {
+                        string neg;
+                        neg = list[i] + list[i + 1];
+                        i++;
+                        tempList.Add(int.Parse(neg));
+                    }
+                    else
+                        tempList.Add(int.Parse(list[i]));
+                }
+
+                result.Add(tempList);
+
+            }
+            return result;
+        }
 
 
 
@@ -340,5 +495,11 @@ namespace EvadeWithGUI.ViewModels
 
 
 
-}
+
+
+
+
+
+
+    }
 }

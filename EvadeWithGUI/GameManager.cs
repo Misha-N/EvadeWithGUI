@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using static EvadeWithGUI.GameConstants;
 
 namespace EvadeWithGUI
@@ -220,6 +221,27 @@ namespace EvadeWithGUI
                 GameHistory.Push(RedoStack.Pop());
                 PlayerOnTurn = PlayerSwap();
             }
+        }
+
+        public bool PlayMoveHistory(List<List<int>> moves)
+        {
+            
+            Console.WriteLine(moves.Count);
+
+            foreach (var sublist in moves)
+            {
+
+                foreach (int str in sublist)
+                {
+                    Console.Write(str);
+                    
+                }
+                Console.WriteLine();
+
+            }
+            
+
+            return true;
         }
 
 

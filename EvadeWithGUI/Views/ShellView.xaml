@@ -150,9 +150,9 @@
                 </Menu.ItemsPanel>
                 <MenuItem Header="Game" x:Name="Settings">
                     <MenuItem x:Name="NewGame" Header="New Game" />
-                    <MenuItem Header="Load Game" />
+                    <MenuItem x:Name="LoadGame" Header="Load Game" />
                     <Separator />
-                    <MenuItem Header="Save Game"/>
+                    <MenuItem x:Name="SaveGame" Header="Save Game"/>
                     <Separator />
                     <MenuItem x:Name="Exit" Header="Exit" />
                 </MenuItem>
