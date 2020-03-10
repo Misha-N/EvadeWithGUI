@@ -54,7 +54,10 @@ namespace EvadeWithGUI
             }
             else
             {
-                move[(int)GameConstants.MoveParts.result] = (int)GameConstants.MoveResult.Fail;
+                if (move.Count != 7)
+                    move.Add((int)GameConstants.MoveResult.Fail);
+                else
+                    move[(int)GameConstants.MoveParts.result] = (int)GameConstants.MoveResult.Fail;
             }
 
         }
@@ -180,7 +183,7 @@ namespace EvadeWithGUI
             return counter;
         }
 
-        /*
+
         public Tuple<int,int> SelectRandomPiece(int playerColor)
         {
             Random rnd = new Random();
@@ -209,7 +212,7 @@ namespace EvadeWithGUI
             }
             return Tuple.Create(0, 0);
         }
-        */
+
 
         public List<Tuple<int, int>> AllPlayerPieces(int playerColor)
         {

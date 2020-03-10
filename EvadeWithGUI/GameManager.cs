@@ -1,9 +1,12 @@
-﻿using System;
+﻿using EvadeWithGUI.ViewModels;
+using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using static EvadeWithGUI.GameConstants;
 
 namespace EvadeWithGUI
 {
@@ -21,7 +24,11 @@ namespace EvadeWithGUI
         public Player PlayerTwo { get; set; }
         public Player PlayerOnTurn { get; set; }
         public bool GameInProgress { get; set; }
+        public bool Thinking { get; set; }
         public string GameStatus { get; set; }
+        public Stack<List<int>> GameHistory { get; set; }
+
+        public Stack<List<int>> RedoStack { get; set; }
 
 
 
@@ -40,6 +47,8 @@ namespace EvadeWithGUI
         {
             GameRules = new GameRules();
             GameBoard = new GameBoard(GameRules);
+            GameHistory = new Stack<List<int>>(1000);
+            RedoStack = new Stack<List<int>>(1000);
             GameInProgress = false;
             Input = "";
         }
@@ -49,30 +58,34 @@ namespace EvadeWithGUI
             SetGame();
         }
 
-        public void GetInput(int row, int col)
+        public async Task GetInput(int row, int col, CancellationTokenSource cancellationTokenSource)
         {
             SelectedPosition = row.ToString() + col.ToString();
-            GameTurn();
+            await GameTurn(cancellationTokenSource);
         }
 
-        public void GameTurn()
+        public async Task GameTurn(CancellationTokenSource cancellationTokenSource)
         {
-
                 if (PlayerOnTurn.IsAI)
-                    PlayerOnTurn.TryToPlay(GameBoard);
+                    await (PlayerOnTurn.TryToPlay(GameBoard, cancellationTokenSource));
+                if (!cancellationTokenSource.IsCancellationRequested)
+                {
 
-                if (!PlayerOnTurn.Finished)
-                {
-                        PlayerOnTurn.Selection(ToIntToRow(SelectedPosition), ToIntToCol(SelectedPosition), GameBoard);
-                        if (PlayerOnTurn.PlayerMove[(int)GameConstants.MoveParts.result] == (int)GameConstants.MoveResult.Fail && !PlayerOnTurn.StartPositionSelected)
-                            SelectedPosition = "none - Failed Move, Play again.";
-                }
-                if (PlayerOnTurn.Finished)
-                {
-                    PlayerOnTurn.PlayerMove.ForEach(Console.Write);
-                    PlayerOnTurn.Finished = false;
-                    CheckEndGame();
-                    EndTurn();
+                    if (!PlayerOnTurn.Finished)
+                    {
+                            await PlayerOnTurn.Selection(ToIntToRow(SelectedPosition), ToIntToCol(SelectedPosition), GameBoard, cancellationTokenSource);
+                            if (PlayerOnTurn.PlayerMove[(int)GameConstants.MoveParts.result] == (int)GameConstants.MoveResult.Fail && !PlayerOnTurn.StartPositionSelected)
+                                SelectedPosition = "none - Failed Move, Play again.";
+                    }
+                    if (PlayerOnTurn.Finished)
+                    {
+                        GameHistory.Push(new List<int>(PlayerOnTurn.PlayerMove));
+                        PlayerOnTurn.PlayerMove.ForEach(Console.Write);
+                        PlayerOnTurn.Finished = false;
+                        CheckEndGame();
+                        RedoStack.Clear();
+                        EndTurn();
+                    }
                 }
         }
 
@@ -80,7 +93,7 @@ namespace EvadeWithGUI
         public void SetGame()
         {
             // new Player(color, AI?, IQ (1 - 4))
-            PlayerOne = new Player((int)GameConstants.PlayerColor.Black, true, 4);
+            PlayerOne = new Player((int)GameConstants.PlayerColor.Black, false, 4);
             PlayerTwo = new Player((int)GameConstants.PlayerColor.White, true, 2);
             PlayerOnTurn = PlayerOne;
             GameInProgress = true;
@@ -140,7 +153,7 @@ namespace EvadeWithGUI
         }
         #endregion
 
-        private Player PlayerSwap()
+        public Player PlayerSwap()
         {
             if (PlayerOnTurn == PlayerOne)
                 return PlayerTwo;
@@ -164,23 +177,51 @@ namespace EvadeWithGUI
         {
             if (GameRules.EGFrozenKings(GameBoard))
             {
-                GameStatus = "Draw";
+                GameStatus = "Draw!";
                 Console.WriteLine("Frozen Kings.");
                 EndGame();
             }
             if (GameRules.EGRoyalLine(GameBoard))
             {
-                GameStatus = PlayerOnTurn.PlayerColor + " Win";
+                GameStatus = Enum.ToObject(typeof(PlayerColor), PlayerOnTurn.PlayerColor).ToString() + " Player Win!";
                 Console.WriteLine("King on Royal Line.");
                 EndGame();
             }
             if (GameRules.EGEnemyBlocked(GameBoard, PlayerOnTurn))
             {
-                GameStatus = PlayerOnTurn.PlayerColor + " Win";
+                GameStatus = Enum.ToObject(typeof(PlayerColor), PlayerOnTurn.PlayerColor).ToString() + " Player Win!";
                 Console.WriteLine("Enemy Blocked.");
                 EndGame();
             }
         }
+
+        public void UndoMove()
+        {
+            if(GameHistory.Count != 0)
+            {
+                List<int> move = GameHistory.Peek();
+                GameBoard.Board[move[0], move[1]] = move[2];
+                GameBoard.Board[move[3], move[4]] = move[5];
+                RedoStack.Push(GameHistory.Pop());
+                PlayerOnTurn = PlayerSwap();
+            }
+        }
+
+        public void RedoMove()
+        {
+            if (RedoStack.Count != 0)
+            {
+                List<int> move = RedoStack.Peek();
+                GameBoard.Board[move[0], move[1]] = 0;
+                if(move[6] == 1)
+                    GameBoard.Board[move[3], move[4]] = 8;
+                else
+                    GameBoard.Board[move[3], move[4]] = move[2];
+                GameHistory.Push(RedoStack.Pop());
+                PlayerOnTurn = PlayerSwap();
+            }
+        }
+
 
         /*
         public string Help(int row, int col)

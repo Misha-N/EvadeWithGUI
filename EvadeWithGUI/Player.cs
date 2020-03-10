@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace EvadeWithGUI
@@ -34,7 +35,7 @@ namespace EvadeWithGUI
         }
 
         // selekce pozic pro provedení tahu
-        public void Selection(int row, int col, GameBoard board)
+        public async Task Selection(int row, int col, GameBoard board, CancellationTokenSource source)
         {
             if (StartPositionSelected)  // je vybrána počáteční pozice
             {
@@ -44,7 +45,7 @@ namespace EvadeWithGUI
 
                 StartPositionSelected = false;
 
-                TryToPlay(board);   // zkusí zahrát zvolený tah
+                await TryToPlay(board, source);   // zkusí zahrát zvolený tah
 
             }
             else if (!StartPositionSelected)    // není vybrána počáteční pozice
@@ -58,10 +59,26 @@ namespace EvadeWithGUI
                 }
             }
         }
-        public void TryToPlay(GameBoard board)
+        public async Task<bool> TryToPlay(GameBoard board, CancellationTokenSource source)
         {
             if (IsAI)
-                AIPlay(board);
+            {
+                var myTask = Task.Run(() => AIPlay(board, source));
+                PlayerMove = await myTask;
+                if (!source.IsCancellationRequested)
+                {
+                    board.MakeMove(PlayerMove, board);
+                    if (PlayerMove[(int)GameConstants.MoveParts.result] != (int)GameConstants.MoveResult.Fail)
+                    {
+                        Finished = true;
+                        return true;
+                    }
+                    else
+                        return false;
+                }
+                else
+                    return false;
+            }
             else
             {
                 // zahraje tah a pokud výsledkem tahu není FAIL ukončí tah hráče
@@ -69,11 +86,13 @@ namespace EvadeWithGUI
                 if (PlayerMove[(int)GameConstants.MoveParts.result] != (int)GameConstants.MoveResult.Fail)
                 {
                     Finished = true;
+                    return true;
                 }
+                else
+                    return false;
             }
-
-
         }
+
         public bool Owner(int row, int col, GameBoard board)    // kontroluje vlastnictví figurek
         {
             if (PlayerColor == (int)GameConstants.PlayerColor.Black && board.IsBlack(row, col))
@@ -83,27 +102,33 @@ namespace EvadeWithGUI
             else
                 return false;
         }
-        public void AIPlay(GameBoard board) // provede tah AI
+        public List<int> AIPlay(GameBoard board, CancellationTokenSource source) // provede tah AI
         {
-            PlayerMove = AI.SmartMove(board, PlayerColor, IQ);
+            //PlayerMove = AI.SmartMove(board, PlayerColor, IQ);
 
             //System.Threading.Thread.Sleep(1000);
 
+            /*
 
             Console.Write("Nejlepší nalezený tah: ");
             PlayerMove.ForEach(Console.Write);
             Console.WriteLine();
+            */
 
 
-            Console.WriteLine("Stiskněte Enter pro zahrání AI tahu.");
+            return GetAITurn(board, source);
 
-
-            // provede vybraný nejlepší tah
-            PlayerMove.Count();
-            board.MakeMove(PlayerMove, board);
-            Finished = true;
 
         }
+
+        public List<int> GetAITurn(GameBoard board, CancellationTokenSource source)
+        {
+            GameBoard boardCopy = board;
+            List<int> pMove = AI.SmartMove(boardCopy, PlayerColor, IQ, source.Token);
+            return pMove;
+
+        }
+
 
     }
 }

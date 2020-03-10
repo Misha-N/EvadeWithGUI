@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace EvadeWithGUI
@@ -40,7 +41,7 @@ namespace EvadeWithGUI
                 return false;
         }
 
-        public List<int> SmartMove(GameBoard board, int playerColor, int IQ)
+        public List<int> SmartMove(GameBoard board, int playerColor, int IQ, CancellationToken cancellationToken)
         {
             int depth = IQ;
             GameBoard boardCopy = board;
@@ -60,8 +61,9 @@ namespace EvadeWithGUI
 
             foreach (List<int> move in allPlayerMoves)
             {
+
                 boardCopy.MakeMove(move, boardCopy);
-                int eval = Minimax(boardCopy, depth, Min, Max, MaximizingPlayer(playerColor));
+                int eval = Minimax(boardCopy, depth, Min, Max, MaximizingPlayer(playerColor), cancellationToken);
 
                 if (MaximizingPlayer(playerColor) && eval > bestEval)
                 {
@@ -84,7 +86,7 @@ namespace EvadeWithGUI
 
         }
 
-        public int Minimax(GameBoard board, int depth, int alpha, int beta, bool maximizingPlayer)
+        public int Minimax(GameBoard board, int depth, int alpha, int beta, bool maximizingPlayer, CancellationToken cancellationToken)
         {
             int eval;
             int maxEval;
@@ -101,8 +103,13 @@ namespace EvadeWithGUI
 
                 foreach (List<int> move in allPlayerMoves)
                 {
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        return 0;
+                    }
+
                     board.MakeMove(move, board);
-                    eval = Minimax(board, depth - 1, alpha, beta, false);
+                    eval = Minimax(board, depth - 1, alpha, beta, false, cancellationToken);
                     board = UndoMove(board, move);
                     maxEval = Math.Max(maxEval, eval);
                     alpha = Math.Max(alpha, eval);
@@ -118,8 +125,13 @@ namespace EvadeWithGUI
 
                 foreach (List<int> move in allPlayerMoves)
                 {
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        return 0;
+                    } 
+
                     board.MakeMove(move, board);
-                    eval = Minimax(board, depth - 1, alpha, beta, true);
+                    eval = Minimax(board, depth - 1, alpha, beta, true, cancellationToken);
                     board = UndoMove(board, move);
                     minEval = Math.Min(minEval, eval);
                     beta = Math.Min(beta, eval);

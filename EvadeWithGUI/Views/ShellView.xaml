@@ -7,7 +7,7 @@
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         xmlns:cal="http://www.caliburnproject.org"
         mc:Ignorable="d"
-        Title="ShellView" Height="500" Width="600">
+        Title="Evade Game" Height="500" Width="600" WindowStartupLocation="CenterScreen">
 
     <Window.Resources>
 
@@ -148,23 +148,23 @@
                         <DockPanel HorizontalAlignment="Left"/>
                     </ItemsPanelTemplate>
                 </Menu.ItemsPanel>
-                <MenuItem Header="Nastavení" x:Name="Settings">
-                    <MenuItem Header="Nová Hra" />
-                    <MenuItem Header="Nahrát hru" />
+                <MenuItem Header="Game" x:Name="Settings">
+                    <MenuItem x:Name="NewGame" Header="New Game" />
+                    <MenuItem Header="Load Game" />
                     <Separator />
-                    <MenuItem Header="Uložit hru"/>
+                    <MenuItem Header="Save Game"/>
                     <Separator />
-                    <MenuItem Header="Ukončit" />
+                    <MenuItem x:Name="Exit" Header="Exit" />
                 </MenuItem>
-                <MenuItem Header="Upravit">
-                    <MenuItem Header="Nastavení obtížnosti"/>
-                    <MenuItem Header="Undo"/>
-                    <MenuItem Header="Redo"/>
+                <MenuItem Header="Akce">
+                    <MenuItem x:Name="MenuUndo" Header="Undo"/>
+                    <MenuItem x:Name="MenuRedo" Header="Redo"/>
                 </MenuItem>
+                <MenuItem x:Name="OpenSettings" Header="Settings"/>
                 <MenuItem Header="Help">
-                    <MenuItem Header="Nápověda tahu"/>
+                    <MenuItem IsEnabled="{Binding IsHuman, Mode=OneWay}" x:Name="BestMove" Header="Best Move"/>
                     <Separator />
-                    <MenuItem x:Name="OpenRules" Header="Pravidla" />
+                    <MenuItem x:Name="OpenRules" Header="Game Rules" />
                 </MenuItem>
             </Menu>
             <StatusBar DockPanel.Dock="Bottom" Height="23" VerticalAlignment="Bottom">
@@ -172,28 +172,29 @@
                     Player on turn: 
                 </TextBlock>                
                 <TextBlock x:Name="PlayerOnTurn" />
-                <Button x:Name="Selection" VerticalAlignment="Center" FontSize="9" Padding="5 0" Visibility="{Binding IsAI, Mode=OneWay}">Odpálit tah AI</Button>
-                <ProgressBar  Visibility="{Binding IsAI, Mode=OneWay}"  IsIndeterminate="{Binding Thinking, Mode=OneWay}"  Height="5" VerticalAlignment="Center" Width="100"/>
+                <Button x:Name="Cancel" VerticalAlignment="Center" FontSize="9" Padding="5 0" IsEnabled="{Binding IsThinking, Mode=OneWay}" Visibility="{Binding IsAI, Mode=OneWay}">Zrušit výpočet</Button>
+                <ProgressBar  Visibility="{Binding IsAI, Mode=OneWay}"  IsIndeterminate="{Binding IsThinking, Mode=OneWay}"  Height="5" VerticalAlignment="Center" Width="100"/>
                 
             </StatusBar>
-            <Grid DockPanel.Dock="Top" Background="White">
+            <Grid DockPanel.Dock="Top" Background="White" IsEnabled="{Binding Active, Mode=OneWay}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="243*"/>
                     <ColumnDefinition Width="200" />
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="2" Orientation="Vertical">
-                    <GroupBox Margin="5 0 5 5">
-                        <StackPanel>
-                            <TextBlock>Game Status:</TextBlock>
-                            <TextBlock x:Name="GameStatus"></TextBlock>
-                        </StackPanel>
-                    </GroupBox>
-                    <GroupBox Header="Move History" Margin="5 0 5 5">
+                    <GroupBox Header="Move History" Margin="5 0 5 5" >
                         <StackPanel Orientation="Vertical">
-                            <DataGrid Margin="5 5 5 5" Height="250" ItemsSource="{Binding Path = SelectedBoardItem}" x:Name="ChessGridItems" />
-                            <Button x:Name="Undo" Content="Undo" />
-                            <Button x:Name="Redo" Content="Redo" />
-                            <TextBlock x:Name="SelectedBoardItem"></TextBlock>
+                            <ListBox Background="LightGreen" Margin="2" Height="250" ItemsSource="{Binding Path = GameHistory, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <ListBox Background="LightPink" Margin="2" Height="100" ItemsSource="{Binding Path = RedoStack, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <Button IsEnabled="{Binding IsListBoxEnabled, Mode=OneWay}" Margin="2" x:Name="Undo" Content="Undo" />
+                                <Button IsEnabled="{Binding IsListBoxEnabled, Mode=OneWay}" Margin="2" Grid.Column="1" x:Name="Redo" Content="Redo" />
+                            </Grid>
+                            
                         </StackPanel>
                     </GroupBox>
                 </StackPanel>
@@ -208,20 +209,18 @@
                      ItemContainerStyle="{StaticResource BoardPieceContainerStyle}" 
                      SelectedItem="{Binding SelectedBoardItem, Mode=OneWayToSource}"
                      ItemsPanel="{StaticResource BoardBackgroundTemplate}"
+                     IsEnabled="{Binding IsListBoxEnabled, Mode=OneWay}"
                      RenderTransformOrigin="0.5,0.5">
 
 
                 </ListView>
-                
-
-
-
-
-
-
 
             </Grid>
+            
+
         </DockPanel>
+
+        <ContentControl IsEnabled="True" x:Name="ActiveItem" Width="400" Height="300" Margin="50" />
     </Grid>
     
 
