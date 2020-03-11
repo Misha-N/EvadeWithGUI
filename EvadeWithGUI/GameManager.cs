@@ -182,7 +182,7 @@ namespace EvadeWithGUI
         {
             if (GameRules.EGFrozenKings(GameBoard))
             {
-                GameStatus = "Draw!";
+                GameStatus = "draw";
                 Console.WriteLine("Frozen Kings.");
                 EndGame();
             }
@@ -209,6 +209,8 @@ namespace EvadeWithGUI
                 GameBoard.Board[move[3], move[4]] = move[5];
                 RedoStack.Push(GameHistory.Pop());
                 PlayerOnTurn = PlayerSwap();
+                if (!GameInProgress)
+                    GameInProgress = true;
             }
         }
 
@@ -223,6 +225,7 @@ namespace EvadeWithGUI
                 else
                     GameBoard.Board[move[3], move[4]] = move[2];
                 GameHistory.Push(RedoStack.Pop());
+                CheckEndGame();
                 PlayerOnTurn = PlayerSwap();
             }
         }

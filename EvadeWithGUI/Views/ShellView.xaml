@@ -7,7 +7,7 @@
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         xmlns:cal="http://www.caliburnproject.org"
         mc:Ignorable="d"
-        Title="Evade Game" Height="500" Width="600" WindowStartupLocation="CenterScreen">
+        Title="Evade Game" Height="510" Width="610" WindowStartupLocation="CenterScreen" ResizeMode="NoResize">
 
     <Window.Resources>
 
@@ -121,6 +121,7 @@
             </DrawingBrush.Drawing>
         </DrawingBrush>
 
+
         <ItemsPanelTemplate x:Key="BoardBackgroundTemplate">
             <Grid Width="300" Height="{Binding RelativeSource={RelativeSource Self}, Path=Width}"
               Background="{StaticResource BoardBackgroundBrush}">
@@ -142,12 +143,14 @@
                 </Grid.ColumnDefinitions>
 
             </Grid>
+
         </ItemsPanelTemplate>
 
+
     </Window.Resources>
-    
-    
-    
+
+
+
     <Grid>
         <DockPanel LastChildFill="True"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch"   Background="White">
             <Menu DockPanel.Dock="Top" HorizontalAlignment="Stretch" x:Name="mainMenu" VerticalAlignment="Top">
@@ -177,7 +180,7 @@
             </Menu>
             <StatusBar DockPanel.Dock="Bottom" Height="23" VerticalAlignment="Bottom">
                 <TextBlock>
-                    Player on turn: 
+                    Player on turn:
                 </TextBlock>
                 <TextBlock x:Name="PlayerOnTurn" />
                 <Button x:Name="Cancel" VerticalAlignment="Center" FontSize="9" Padding="5 0" IsEnabled="{Binding IsThinking, Mode=OneWay}" Visibility="{Binding IsAI, Mode=OneWay}">Zrušit výpočet</Button>
@@ -193,7 +196,7 @@
                     <GroupBox Header="Move History" Margin="5 0 5 5" >
                         <StackPanel Orientation="Vertical">
                             <ListBox Background="LightGreen" Margin="2" Height="250" ItemsSource="{Binding Path = GameHistory, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
-                            <ListBox Background="LightPink" Margin="2" Height="100" ItemsSource="{Binding Path = RedoStack, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <ItemsControl Focusable="False" Background="LightPink" Margin="2" Height="100" ItemsSource="{Binding Path = RedoStack, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition/>
@@ -202,14 +205,14 @@
                                 <Button IsEnabled="{Binding IsListBoxEnabled, Mode=OneWay}" Margin="2" x:Name="Undo" Content="Undo" />
                                 <Button IsEnabled="{Binding IsListBoxEnabled, Mode=OneWay}" Margin="2" Grid.Column="1" x:Name="Redo" Content="Redo" />
                             </Grid>
-                            
+
                         </StackPanel>
                     </GroupBox>
                 </StackPanel>
 
                 <ListView Name="BoardListBox"
-                     Grid.Column="0" Grid.Row="1" 
-                     Margin="10,0,10,0"
+                     Grid.Column="0" 
+                     Margin="45,90,45,36"
                      HorizontalAlignment="Center" VerticalAlignment="Center"
                      HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
                      ItemsSource="{Binding BoardItems}"
@@ -218,18 +221,16 @@
                      SelectedItem="{Binding SelectedBoardItem, Mode=OneWayToSource}"
                      ItemsPanel="{StaticResource BoardBackgroundTemplate}"
                      IsEnabled="{Binding IsListBoxEnabled, Mode=OneWay}"
-                     RenderTransformOrigin="0.5,0.5">
-
-
-                </ListView>
+                     RenderTransformOrigin="0.5,0.5"/>
+                <Image Source="/Images/Logo.png"  VerticalAlignment="Top" Height="55" Margin="0,20,0,0" />
 
             </Grid>
-            
+
 
         </DockPanel>
 
         <ContentControl IsEnabled="True" x:Name="ActiveItem" Width="400" Height="300" Margin="50" />
     </Grid>
-    
+
 
 </Window>

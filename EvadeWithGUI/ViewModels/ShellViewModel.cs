@@ -109,7 +109,9 @@ namespace EvadeWithGUI.ViewModels
                 NotifyOfPropertyChange(() => BestMoveShow);
                 if (gm.BestMove != null)
                 {
-                    var result = string.Join(",", gm.BestMove);
+                    var from = GameConstants.moves.FirstOrDefault(x => x.Value == string.Join(",", gm.BestMove[0], gm.BestMove[1])).Key;
+                    var to = GameConstants.moves.FirstOrDefault(x => x.Value == string.Join(",", gm.BestMove[3], gm.BestMove[4])).Key;
+                    string result = "from " + from + " to " + to;
                     return "Best Move: " + result;
                 }
                 else
@@ -149,7 +151,10 @@ namespace EvadeWithGUI.ViewModels
         {
             get
             {
-                return !gm.PlayerOnTurn.IsAI;
+                if (gm.GameInProgress == false)
+                    return false;
+                else
+                    return !gm.PlayerOnTurn.IsAI;
             }
 
         }
@@ -177,7 +182,10 @@ namespace EvadeWithGUI.ViewModels
         {
             get
             {
-                return !IsListBoxEnabled;
+                if (gm.GameInProgress == false)
+                    return false;
+                else
+                    return !IsListBoxEnabled;
             }
         }
 
@@ -202,7 +210,15 @@ namespace EvadeWithGUI.ViewModels
             ObservableCollection<string> stringHistory = new ObservableCollection<string>();
             foreach (List<int> move in intHistory)
             {
-                var result = "\u265a" + "\u2654" + string.Join(",", move);
+                string player;
+                var from = GameConstants.moves.FirstOrDefault(x => x.Value == string.Join(",", move[0], move[1])).Key;
+                var to = GameConstants.moves.FirstOrDefault(x => x.Value == string.Join(",", move[3], move[4])).Key;
+                if (move[2] > 0)
+                    player = "\ud83d\udc27";
+                else
+                    player = "\ud83d\udc3b";
+
+                var result = player + " moved from " + from + " to " + to;
                 stringHistory.Add(result);
             }
             return stringHistory;
@@ -218,6 +234,36 @@ namespace EvadeWithGUI.ViewModels
             Redo();
         }
 
+        /*
+        public int _historyUndo;
+        public int HistoryUndo
+        {
+            set
+            {
+                if(value > 0)
+                {
+                    MessageBox.Show(value.ToString()) ;
+                    int count = value;
+                        for (int i = 0; count >= i; i++)
+                        {
+                            Undo();
+                        }
+
+                }
+                _historyUndo = -1;
+
+            }
+            get
+            {
+                return _historyUndo;
+            }
+        }
+
+        public void lbxs_MouseDoubleClick(object element, bool value)
+        {
+            MessageBox.Show("click") ;
+        }
+        */
 
         public void Undo()
         {
@@ -226,6 +272,7 @@ namespace EvadeWithGUI.ViewModels
             gm.BestMove = null;
             cancellationTokenSource = new CancellationTokenSource();
             ReloadUI();
+            CheckEndGame();
         }
 
         public void Redo()
@@ -234,26 +281,37 @@ namespace EvadeWithGUI.ViewModels
             gm.RedoMove();
             cancellationTokenSource = new CancellationTokenSource();
             ReloadUI();
+            CheckEndGame();
         }
 
         async Task Selection(BoardItem sender)
         {
-            cancellationTokenSource = new CancellationTokenSource();
+            if(gm.GameInProgress)
+            {
+                cancellationTokenSource = new CancellationTokenSource();
 
-            if (gm.PlayerOnTurn.IsAI)
-            {
-                AIThinking(true);
-                await gm.GameTurn(cancellationTokenSource);
-                AIThinking(false);
-                ReloadUI();
-                
+                if (gm.PlayerOnTurn.IsAI)
+                {
+                    AIThinking(true);
+                    await gm.GameTurn(cancellationTokenSource);
+                    AIThinking(false);
+                    ReloadUI();
+                    CheckEndGame();
+                    if (gm.PlayerOnTurn.IsAI)
+                        await Selection(BoardItems[0]);
+
+
+                }
+                else
+                {
+                    await gm.GetInput(sender.Row, sender.Col, cancellationTokenSource);
+                    ReloadUI();
+                    CheckEndGame();
+                    if (gm.PlayerOnTurn.IsAI)
+                        await Selection(BoardItems[0]);
+                }
+                CheckEndGame();
             }
-            else
-            {
-                await gm.GetInput(sender.Row, sender.Col, cancellationTokenSource);
-                ReloadUI();
-            }
-            CheckEndGame();
 
         }
 
@@ -349,18 +407,8 @@ namespace EvadeWithGUI.ViewModels
         {
             if (gm.GameInProgress == false)
             {
-                MessageBoxResult result = MessageBox.Show(gm.GameStatus + "\nDo you want to start a New Game?",
-                                  "Confirmation",
-                                  MessageBoxButton.YesNo,
-                                  MessageBoxImage.Information);
-                if (result == MessageBoxResult.Yes)
-                {
-                    NewGame();
-                }
-                else
-                    Application.Current.Shutdown();
-
-
+                Cancel();
+                ActivateItem(new WinScreenViewModel(this, gm));
             }
         }
 
@@ -385,7 +433,7 @@ namespace EvadeWithGUI.ViewModels
 
             SaveFileDialog saveFileDialog = new SaveFileDialog();
             saveFileDialog.Filter = "XML document|*.xml";
-            saveFileDialog.FileName = "Game";
+            saveFileDialog.FileName = "Save";
             saveFileDialog.DefaultExt = "xml";
 
             XDocument xmlDoc = new XDocument(
