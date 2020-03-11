@@ -64,6 +64,12 @@ namespace EvadeWithGUI.ViewModels
 
                     }
                 }
+                if(gm.BestMove != null)
+                {
+                    boardItems.Add(new BoardItem() { Row = gm.BestMove[0], Col = gm.BestMove[1], PieceType = (GameConstants.States)99 });
+                    boardItems.Add(new BoardItem() { Row = gm.BestMove[3], Col = gm.BestMove[4], PieceType = (GameConstants.States)99 });
+                }
+                
             }
 
         }
@@ -92,6 +98,34 @@ namespace EvadeWithGUI.ViewModels
             get
             {
                 return Enum.ToObject(typeof(PlayerColor), gm.PlayerOnTurn.PlayerColor).ToString();
+            }
+
+        }
+
+        public string BestMoveInfo
+        {
+            get
+            {
+                NotifyOfPropertyChange(() => BestMoveShow);
+                if (gm.BestMove != null)
+                {
+                    var result = string.Join(",", gm.BestMove);
+                    return "Best Move: " + result;
+                }
+                else
+                    return null;
+            }
+
+        }
+
+        public Visibility BestMoveShow
+        {
+            get
+            {
+                if (gm.BestMove != null)
+                    return VisConvert(true);
+                else
+                    return VisConvert(false);
             }
 
         }
@@ -168,7 +202,7 @@ namespace EvadeWithGUI.ViewModels
             ObservableCollection<string> stringHistory = new ObservableCollection<string>();
             foreach (List<int> move in intHistory)
             {
-                var result = string.Join(",", move);
+                var result = "\u265a" + "\u2654" + string.Join(",", move);
                 stringHistory.Add(result);
             }
             return stringHistory;
@@ -189,6 +223,7 @@ namespace EvadeWithGUI.ViewModels
         {
             Cancel();
             gm.UndoMove();
+            gm.BestMove = null;
             cancellationTokenSource = new CancellationTokenSource();
             ReloadUI();
         }
@@ -230,16 +265,17 @@ namespace EvadeWithGUI.ViewModels
                     gm.PlayerOnTurn.IsAI = true;
                     ReloadUI();
                     AIThinking(true);
-                    await gm.GameTurn(cancellationTokenSource);
+                    gm.BestMove = await gm.PlayerOnTurn.AIPlay(gm.GameBoard, cancellationTokenSource);
                     if (!cancellationTokenSource.IsCancellationRequested)
                     {
-                        gm.PlayerSwap().IsAI = false;
+                        gm.PlayerOnTurn.IsAI = false;
                         AIThinking(false);
                         ReloadUI();
                         CheckEndGame();
                     }
                     if (cancellationTokenSource.IsCancellationRequested)
                     {
+                        gm.BestMove = null;
                         gm.PlayerOnTurn.IsAI = false;
                         AIThinking(false);
                         ReloadUI();
@@ -267,6 +303,7 @@ namespace EvadeWithGUI.ViewModels
             NotifyOfPropertyChange(() => IsHuman);
             NotifyOfPropertyChange(() => GameHistory);
             NotifyOfPropertyChange(() => RedoStack);
+            NotifyOfPropertyChange(() => BestMoveInfo);
         }
 
         public void OpenSettings()
@@ -354,6 +391,7 @@ namespace EvadeWithGUI.ViewModels
             XDocument xmlDoc = new XDocument(
                 new XElement("Game",
                     new XElement("Setting",
+                        new XElement("SaveHash", (int)gm.GetHash(gm.GameHistory)),
                         new XElement("IsBlackAI", gm.PlayerOne.IsAI),
                         new XElement("IsWhiteAI", gm.PlayerTwo.IsAI),
                         new XElement("BlackDifficulty", (int)gm.PlayerOne.IQ),
@@ -414,6 +452,9 @@ namespace EvadeWithGUI.ViewModels
                 {
                     xmlDoc = XDocument.Load(openFileDlg.FileName);
 
+                    var saveHash = xmlDoc.Descendants("SaveHash")
+                        .Select(element => int.Parse(element.Value.ToString()))
+                        .FirstOrDefault();
 
                     moveList.AddRange(xmlDoc.Descendants("Move")
                         .Select(element => element.Value
@@ -436,14 +477,13 @@ namespace EvadeWithGUI.ViewModels
                         .Select(element => int.Parse(element.Value.ToString()))
                         .FirstOrDefault();
 
-                    if(!tempgm.PlayMoveHistory(MagicParse(moveList)))
-                        throw new System.InvalidOperationException("Invalid move list.");
+                    if(!tempgm.PlayMoveHistory(MagicParse(moveList), saveHash))
+                        throw new System.InvalidOperationException("Manipulated move list.");
 
 
 
-                    if (((aiLevelW + aiLevelB) % 1) == 0 &&
-                        aiLevelW > 0 && aiLevelW <= 4 &&
-                        aiLevelB > 0 && aiLevelB <= 4)
+                    if (aiLevelW > 0 && aiLevelW <= 4 && (aiLevelW % 1) == 0 &&
+                        aiLevelB > 0 && aiLevelB <= 4 && (aiLevelB % 1) == 0)
                     {
                         gm.PlayerOne.IQ = aiLevelB;
                         gm.PlayerTwo.IQ = aiLevelW;

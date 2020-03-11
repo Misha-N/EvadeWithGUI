@@ -131,18 +131,25 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\Pieces\BlackKing.png" />
-    <Resource Include="Images\Pieces\BlackPawn.png" />
-    <Resource Include="Images\Pieces\FrozenOlaf.png" />
-    <Resource Include="Images\Pieces\WhiteKing.png" />
-    <Resource Include="Images\Pieces\WhitePawn.png" />
-    <Resource Include="Images\Textures\DarkWood.jpg" />
-    <Resource Include="Images\Textures\TextureFrozen.jpg" />
-    <Resource Include="Images\Textures\Texture_1.jpg" />
-    <Resource Include="Images\Textures\Texture_2.jpg" />
+    <Resource Include="Images\Pieces\Empty.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\Pieces\Empty.png" />
+    <Resource Include="Images\Pieces\BlackKing.png" />
+    <Resource Include="Images\Pieces\WhiteKing.png" />
+    <Resource Include="Images\Pieces\BlackPawn.png" />
+    <Resource Include="Images\Pieces\WhitePawn.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Textures\Light.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Textures\Dark.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Textures\TextureFrozen.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Pieces\circle.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

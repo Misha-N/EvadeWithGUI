@@ -15,6 +15,14 @@
             <Style.Triggers>
                 <MultiDataTrigger>
                     <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding PieceType}" Value="99"/>
+                    </MultiDataTrigger.Conditions>
+                    <MultiDataTrigger.Setters>
+                        <Setter Property="Source" Value="/Images/Pieces/circle.png"/>
+                    </MultiDataTrigger.Setters>
+                </MultiDataTrigger>
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
                         <Condition Binding="{Binding PieceType}" Value="-1"/>
                     </MultiDataTrigger.Conditions>
                     <MultiDataTrigger.Setters>
@@ -50,7 +58,7 @@
                         <Condition Binding="{Binding PieceType}" Value="8"/>
                     </MultiDataTrigger.Conditions>
                     <MultiDataTrigger.Setters>
-                        <Setter Property="Source" Value="/Images/Textures/TextureFrozen.jpg"/>
+                        <Setter Property="Source" Value="/Images/Textures/TextureFrozen.png"/>
                     </MultiDataTrigger.Setters>
                 </MultiDataTrigger>
                 <MultiDataTrigger>
@@ -90,7 +98,7 @@
                 <DrawingGroup RenderOptions.EdgeMode="Aliased" RenderOptions.BitmapScalingMode="HighQuality">
                     <GeometryDrawing>
                         <GeometryDrawing.Brush>
-                            <ImageBrush ImageSource="/Images/Textures/Texture_2.jpg" Stretch="Fill"/>
+                            <ImageBrush ImageSource="/Images/Textures/Light.jpg" Stretch="Fill"/>
                         </GeometryDrawing.Brush>
                         <GeometryDrawing.Geometry>
                             <GeometryGroup>
@@ -100,7 +108,7 @@
                     </GeometryDrawing>
                     <GeometryDrawing>
                         <GeometryDrawing.Brush>
-                            <ImageBrush ImageSource="/Images/Textures/Texture_1.jpg" Stretch="Fill"/>
+                            <ImageBrush ImageSource="/Images/Textures/Dark.jpg" Stretch="Fill"/>
                         </GeometryDrawing.Brush>
                         <GeometryDrawing.Geometry>
                             <GeometryGroup>
@@ -170,11 +178,11 @@
             <StatusBar DockPanel.Dock="Bottom" Height="23" VerticalAlignment="Bottom">
                 <TextBlock>
                     Player on turn: 
-                </TextBlock>                
+                </TextBlock>
                 <TextBlock x:Name="PlayerOnTurn" />
                 <Button x:Name="Cancel" VerticalAlignment="Center" FontSize="9" Padding="5 0" IsEnabled="{Binding IsThinking, Mode=OneWay}" Visibility="{Binding IsAI, Mode=OneWay}">Zrušit výpočet</Button>
                 <ProgressBar  Visibility="{Binding IsAI, Mode=OneWay}"  IsIndeterminate="{Binding IsThinking, Mode=OneWay}"  Height="5" VerticalAlignment="Center" Width="100"/>
-                
+                <TextBlock x:Name="BestMoveInfo" Visibility="{Binding BestMoveShow, Mode=OneWay}" Margin="15,0,0,0" />
             </StatusBar>
             <Grid DockPanel.Dock="Top" Background="White" IsEnabled="{Binding Active, Mode=OneWay}">
                 <Grid.ColumnDefinitions>

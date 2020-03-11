@@ -102,7 +102,7 @@ namespace EvadeWithGUI
             else
                 return false;
         }
-        public List<int> AIPlay(GameBoard board, CancellationTokenSource source) // provede tah AI
+        public async Task<List<int>> AIPlay(GameBoard board, CancellationTokenSource source) // provede tah AI
         {
             //PlayerMove = AI.SmartMove(board, PlayerColor, IQ);
 
@@ -114,9 +114,9 @@ namespace EvadeWithGUI
             PlayerMove.ForEach(Console.Write);
             Console.WriteLine();
             */
+            var myTask = Task.Run(() => GetAITurn(board, source));
 
-
-            return GetAITurn(board, source);
+            return await myTask;
 
 
         }

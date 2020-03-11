@@ -1,5 +1,6 @@
 ﻿using EvadeWithGUI.ViewModels;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -27,6 +28,8 @@ namespace EvadeWithGUI
         public bool GameInProgress { get; set; }
         public bool Thinking { get; set; }
         public string GameStatus { get; set; }
+
+        public List<int> BestMove { get; set; }
         public Stack<List<int>> GameHistory { get; set; }
 
         public Stack<List<int>> RedoStack { get; set; }
@@ -85,6 +88,7 @@ namespace EvadeWithGUI
                         PlayerOnTurn.Finished = false;
                         CheckEndGame();
                         RedoStack.Clear();
+                        BestMove = null;
                         EndTurn();
                     }
                 }
@@ -223,25 +227,43 @@ namespace EvadeWithGUI
             }
         }
 
-        public bool PlayMoveHistory(List<List<int>> moves)
+        public bool PlayMoveHistory(List<List<int>> moves, int saveHash)
         {
             
             Console.WriteLine(moves.Count);
 
-            foreach (var sublist in moves)
+            if (GetHash(moves) == saveHash)
             {
-
-                foreach (int str in sublist)
+                foreach (var sublist in moves)
                 {
-                    Console.Write(str);
-                    
+                    RedoStack.Push(sublist);
                 }
-                Console.WriteLine();
+                while (RedoStack.Count > 0)
+                {
+                    RedoMove();
+                }
+                
+                return true;
+            }
+            else
+                return false;
+        }
 
+
+        public int GetHash(IEnumerable moves)
+        {
+            string str = "";
+            foreach (List<int> move in moves)
+            {
+                var result = string.Join("",move);
+                str += result;
             }
             
+            Console.WriteLine(str);
+            Console.WriteLine(str.GetHashCode());
 
-            return true;
+            return str.GetHashCode();
+
         }
 
 
