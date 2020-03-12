@@ -2,18 +2,13 @@
 using EvadeWithGUI.Models;
 using Microsoft.Win32;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Globalization;
-using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
 using System.Xml.Linq;
 using static EvadeWithGUI.GameConstants;
 
@@ -135,7 +130,6 @@ namespace EvadeWithGUI.ViewModels
         public void Cancel()
         {
             cancellationTokenSource.Cancel();
-            cancellationTokenSource = new CancellationTokenSource();
         }
 
         public Visibility IsAI
@@ -189,11 +183,33 @@ namespace EvadeWithGUI.ViewModels
             }
         }
 
+        public bool UndoEnabled
+        {
+            get
+            {
+                if (gm.GameHistory.Count == 0 | IsThinking)
+                    return false;
+                else
+                    return true;
+            }
+        }
+
+        public bool RedoEnabled
+        {
+            get
+            {
+                if (gm.RedoStack.Count == 0 | IsThinking)
+                    return false;
+                else
+                    return true;
+            }
+        }
+
         public ObservableCollection<string> GameHistory
         {
             get
             {
-                return HistoryToStrings(gm.GameHistory);
+                return HistoryToStrings(gm.GameHistory, true);
             }
         }
 
@@ -201,12 +217,26 @@ namespace EvadeWithGUI.ViewModels
         {
             get
             {
-                return HistoryToStrings(gm.RedoStack);
+                return new ObservableCollection<string>(HistoryToStrings(gm.RedoStack, false).Reverse());
             }
         }
 
-        public ObservableCollection<string> HistoryToStrings(Stack<List<int>> intHistory)
+        public ObservableCollection<string> HistoryToStrings(Stack<List<int>> intHistory, bool needCounter)
         {
+            int? counter;
+            string dot;
+            if (needCounter)
+            {
+                counter = intHistory.Count;
+                dot = ".";
+            }
+            else
+            {
+                intHistory.Reverse();
+                counter = null;
+                dot = "";
+            }
+
             ObservableCollection<string> stringHistory = new ObservableCollection<string>();
             foreach (List<int> move in intHistory)
             {
@@ -218,8 +248,13 @@ namespace EvadeWithGUI.ViewModels
                 else
                     player = "\ud83d\udc3b";
 
-                var result = player + " moved from " + from + " to " + to;
+                
+
+                var result = counter + dot + "  " + player + "   " + from + " -> " + to;
                 stringHistory.Add(result);
+
+                if(needCounter)
+                    counter--;
             }
             return stringHistory;
         }
@@ -234,15 +269,13 @@ namespace EvadeWithGUI.ViewModels
             Redo();
         }
 
-        /*
         public int _historyUndo;
         public int HistoryUndo
         {
             set
             {
-                if(value > 0)
+                if(value >= 0)
                 {
-                    MessageBox.Show(value.ToString()) ;
                     int count = value;
                         for (int i = 0; count >= i; i++)
                         {
@@ -250,7 +283,6 @@ namespace EvadeWithGUI.ViewModels
                         }
 
                 }
-                _historyUndo = -1;
 
             }
             get
@@ -259,11 +291,6 @@ namespace EvadeWithGUI.ViewModels
             }
         }
 
-        public void lbxs_MouseDoubleClick(object element, bool value)
-        {
-            MessageBox.Show("click") ;
-        }
-        */
 
         public void Undo()
         {
@@ -297,8 +324,11 @@ namespace EvadeWithGUI.ViewModels
                     AIThinking(false);
                     ReloadUI();
                     CheckEndGame();
-                    if (gm.PlayerOnTurn.IsAI)
+                    if(!cancellationTokenSource.IsCancellationRequested)
+                    {
+                        if (gm.PlayerOnTurn.IsAI)
                         await Selection(BoardItems[0]);
+                    }
 
 
                 }
@@ -320,9 +350,9 @@ namespace EvadeWithGUI.ViewModels
             cancellationTokenSource = new CancellationTokenSource();
             if(!gm.PlayerOnTurn.IsAI)
             {
-                    gm.PlayerOnTurn.IsAI = true;
-                    ReloadUI();
+                    gm.PlayerOnTurn.IsAI = true;    
                     AIThinking(true);
+                    ReloadUI();
                     gm.BestMove = await gm.PlayerOnTurn.AIPlay(gm.GameBoard, cancellationTokenSource);
                     if (!cancellationTokenSource.IsCancellationRequested)
                     {
@@ -362,6 +392,8 @@ namespace EvadeWithGUI.ViewModels
             NotifyOfPropertyChange(() => GameHistory);
             NotifyOfPropertyChange(() => RedoStack);
             NotifyOfPropertyChange(() => BestMoveInfo);
+            NotifyOfPropertyChange(() => UndoEnabled);
+            NotifyOfPropertyChange(() => RedoEnabled);
         }
 
         public void OpenSettings()
@@ -399,8 +431,13 @@ namespace EvadeWithGUI.ViewModels
         public void OpenRules()
         {
             Cancel();
-            string path = System.IO.Directory.GetCurrentDirectory() + @"\Evade.pdf";
-            System.Diagnostics.Process.Start(path);
+            ActivateItem(new RulesViewModel());
+        }
+
+        public void OpenAppControl()
+        {
+            Cancel();
+            ActivateItem(new AppControlViewModel());
         }
 
         public void CheckEndGame()

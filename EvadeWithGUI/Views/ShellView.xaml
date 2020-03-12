@@ -7,7 +7,7 @@
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         xmlns:cal="http://www.caliburnproject.org"
         mc:Ignorable="d"
-        Title="Evade Game" Height="510" Width="610" WindowStartupLocation="CenterScreen" ResizeMode="NoResize">
+        Title="Evade Game" Height="1000" Width="1500" ResizeMode="NoResize"  WindowStartupLocation="CenterScreen">
 
     <Window.Resources>
 
@@ -93,7 +93,18 @@
                 </i:Interaction.Triggers>-->
 
         <!--Background of the game board-->
-        <DrawingBrush x:Key="BoardBackgroundBrush" Viewport="0,0,100,100" ViewportUnits="Absolute" TileMode="Tile" Stretch="None">
+        <DrawingBrush x:Key="BoardBackgroundBrush" Viewport="0,0,270,270" ViewportUnits="Absolute" TileMode="Tile" Stretch="UniformToFill">
+            <!--
+            <DrawingBrush.Viewport>
+                <MultiBinding>
+                    <MultiBinding.Converter>
+                        <local:ViewPortConverter/>
+                    </MultiBinding.Converter>
+                    <Binding Path="{Binding ActualWidth, ElementName=GameGrid}"/>
+                </MultiBinding>
+            </DrawingBrush.Viewport>
+            -->
+
             <DrawingBrush.Drawing>
                 <DrawingGroup RenderOptions.EdgeMode="Aliased" RenderOptions.BitmapScalingMode="HighQuality">
                     <GeometryDrawing>
@@ -123,8 +134,12 @@
 
 
         <ItemsPanelTemplate x:Key="BoardBackgroundTemplate">
-            <Grid Width="300" Height="{Binding RelativeSource={RelativeSource Self}, Path=Width}"
+            <Grid x:Name="GameGrid"  Width="810"   Height="{Binding RelativeSource={RelativeSource Self}, Path=Width}"
               Background="{StaticResource BoardBackgroundBrush}">
+
+                <!--"{Binding ActualWidth, 
+              RelativeSource = {RelativeSource AncestorType = {x:Type ListBox}}}"-->
+
                 <Grid.RowDefinitions>
                     <RowDefinition/>
                     <RowDefinition/>
@@ -134,7 +149,7 @@
                     <RowDefinition/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
+                    <ColumnDefinition />
                     <ColumnDefinition/>
                     <ColumnDefinition/>
                     <ColumnDefinition/>
@@ -153,13 +168,13 @@
 
     <Grid>
         <DockPanel LastChildFill="True"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch"   Background="White">
-            <Menu DockPanel.Dock="Top" HorizontalAlignment="Stretch" x:Name="mainMenu" VerticalAlignment="Top">
+            <Menu Height="25" DockPanel.Dock="Top" HorizontalAlignment="Stretch" x:Name="mainMenu" VerticalAlignment="Top">
                 <Menu.ItemsPanel>
                     <ItemsPanelTemplate>
                         <DockPanel HorizontalAlignment="Left"/>
                     </ItemsPanelTemplate>
                 </Menu.ItemsPanel>
-                <MenuItem Header="Game" x:Name="Settings">
+                <MenuItem Header="Game" x:Name="Settings" FontSize="18" Margin="15,0">
                     <MenuItem x:Name="NewGame" Header="New Game" />
                     <MenuItem x:Name="LoadGame" Header="Load Game" />
                     <Separator />
@@ -167,52 +182,62 @@
                     <Separator />
                     <MenuItem x:Name="Exit" Header="Exit" />
                 </MenuItem>
-                <MenuItem Header="Akce">
-                    <MenuItem x:Name="MenuUndo" Header="Undo"/>
-                    <MenuItem x:Name="MenuRedo" Header="Redo"/>
+                <MenuItem Header="Actions" FontSize="18" Margin="15,0" >
+                    <MenuItem x:Name="MenuUndo" IsEnabled="{Binding UndoEnabled, Mode=OneWay}" Header="Undo"/>
+                    <MenuItem x:Name="MenuRedo" IsEnabled="{Binding RedoEnabled, Mode=OneWay}" Header="Redo"/>
                 </MenuItem>
-                <MenuItem x:Name="OpenSettings" Header="Settings"/>
-                <MenuItem Header="Help">
+                <MenuItem x:Name="OpenSettings" Header="Settings" FontSize="18" Margin="15,0"/>
+                <MenuItem Header="Help" FontSize="18" Margin="15,0">
                     <MenuItem IsEnabled="{Binding IsHuman, Mode=OneWay}" x:Name="BestMove" Header="Best Move"/>
                     <Separator />
                     <MenuItem x:Name="OpenRules" Header="Game Rules" />
+                    <MenuItem x:Name="OpenAppControl" Header="App Control" />
                 </MenuItem>
             </Menu>
-            <StatusBar DockPanel.Dock="Bottom" Height="23" VerticalAlignment="Bottom">
-                <TextBlock>
+            <StatusBar DockPanel.Dock="Bottom" Height="38" VerticalAlignment="Bottom" >
+                <TextBlock FontSize="20" Margin="20,0,0,0">
                     Player on turn:
                 </TextBlock>
-                <TextBlock x:Name="PlayerOnTurn" />
-                <Button x:Name="Cancel" VerticalAlignment="Center" FontSize="9" Padding="5 0" IsEnabled="{Binding IsThinking, Mode=OneWay}" Visibility="{Binding IsAI, Mode=OneWay}">Zrušit výpočet</Button>
-                <ProgressBar  Visibility="{Binding IsAI, Mode=OneWay}"  IsIndeterminate="{Binding IsThinking, Mode=OneWay}"  Height="5" VerticalAlignment="Center" Width="100"/>
-                <TextBlock x:Name="BestMoveInfo" Visibility="{Binding BestMoveShow, Mode=OneWay}" Margin="15,0,0,0" />
+                <TextBlock x:Name="PlayerOnTurn" FontSize="20" Margin="20,0,0,0" />
+                <Button x:Name="Cancel" VerticalAlignment="Center" Height="30" FontSize="15" Padding="5 0" IsEnabled="{Binding IsThinking, Mode=OneWay}" Visibility="{Binding IsAI, Mode=OneWay}" Margin="25,0,0,0">Cancel Calculation</Button>
+                <ProgressBar  Visibility="{Binding IsAI, Mode=OneWay}"  IsIndeterminate="{Binding IsThinking, Mode=OneWay}"  Height="15" VerticalAlignment="Center" Width="300" Margin="30,0,0,0"/>
+                <TextBlock x:Name="BestMoveInfo" Visibility="{Binding BestMoveShow, Mode=OneWay}" FontSize="20" Margin="30,0,0,0" />
             </StatusBar>
             <Grid DockPanel.Dock="Top" Background="White" IsEnabled="{Binding Active, Mode=OneWay}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="243*"/>
-                    <ColumnDefinition Width="200" />
+                    <ColumnDefinition Width="350" />
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="2" Orientation="Vertical">
-                    <GroupBox Header="Move History" Margin="5 0 5 5" >
+                    <Image Source="/Images/Logo.png"   VerticalAlignment="Top" Height="110" HorizontalAlignment="Right" Width="350" Margin="0,0,15,0"/>
+                    <GroupBox Header="Move History" FontSize="25" Margin="5 0 5 5" >
                         <StackPanel Orientation="Vertical">
-                            <ListBox Background="LightGreen" Margin="2" Height="250" ItemsSource="{Binding Path = GameHistory, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
-                            <ItemsControl Focusable="False" Background="LightPink" Margin="2" Height="100" ItemsSource="{Binding Path = RedoStack, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <ItemsControl Padding="23,10,10,10" Focusable="False" Background="LightPink" Margin="2" Height="250" ItemsSource="{Binding Path = RedoStack, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <VirtualizingStackPanel VerticalAlignment="Bottom"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                            </ItemsControl>
+                            <ListBox x:Name="History" Padding="2" IsEnabled="{Binding UndoEnabled, Mode=OneWay}" MouseDoubleClick="History_MouseDoubleClick" Background="LightGreen" Margin="2" Height="450" ItemsSource="{Binding Path = GameHistory, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition/>
                                     <ColumnDefinition/>
                                 </Grid.ColumnDefinitions>
-                                <Button IsEnabled="{Binding IsListBoxEnabled, Mode=OneWay}" Margin="2" x:Name="Undo" Content="Undo" />
-                                <Button IsEnabled="{Binding IsListBoxEnabled, Mode=OneWay}" Margin="2" Grid.Column="1" x:Name="Redo" Content="Redo" />
+                                <Button IsEnabled="{Binding UndoEnabled, Mode=OneWay}" Margin="2" x:Name="Undo" Content="Undo" />
+                                <Button IsEnabled="{Binding RedoEnabled, Mode=OneWay}" Margin="2" Grid.Column="1" x:Name="Redo" Content="Redo" />
                             </Grid>
 
                         </StackPanel>
                     </GroupBox>
                 </StackPanel>
 
+                
+
+
                 <ListView Name="BoardListBox"
                      Grid.Column="0" 
-                     Margin="45,90,45,36"
                      HorizontalAlignment="Center" VerticalAlignment="Center"
                      HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
                      ItemsSource="{Binding BoardItems}"
@@ -222,14 +247,49 @@
                      ItemsPanel="{StaticResource BoardBackgroundTemplate}"
                      IsEnabled="{Binding IsListBoxEnabled, Mode=OneWay}"
                      RenderTransformOrigin="0.5,0.5"/>
-                <Image Source="/Images/Logo.png"  VerticalAlignment="Top" Height="55" Margin="0,20,0,0" />
+                <Grid HorizontalAlignment="Left" Height="33" Margin="167,864,0,11" Width="810">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock FontSize="20" FontWeight="Bold" HorizontalAlignment="Center" Grid.Column="0">A</TextBlock>
+                    <TextBlock FontSize="20" FontWeight="Bold" HorizontalAlignment="Center" Grid.Column="1">B</TextBlock>
+                    <TextBlock FontSize="20" FontWeight="Bold" HorizontalAlignment="Center" Grid.Column="2">C</TextBlock>
+                    <TextBlock FontSize="20" FontWeight="Bold" HorizontalAlignment="Center" Grid.Column="3">D</TextBlock>
+                    <TextBlock FontSize="20" FontWeight="Bold" HorizontalAlignment="Center" Grid.Column="4">E</TextBlock>
+                    <TextBlock FontSize="20" FontWeight="Bold" HorizontalAlignment="Center" Grid.Column="5">F</TextBlock>
+
+                </Grid>
+                <Grid HorizontalAlignment="Left" Height="810" Margin="118,48,0,0" VerticalAlignment="Top" Width="40">
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock FontSize="20" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Row="0">1</TextBlock>
+                    <TextBlock FontSize="20" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Row="1">2</TextBlock>
+                    <TextBlock FontSize="20" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Row="2">3</TextBlock>
+                    <TextBlock FontSize="20" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Row="3">4</TextBlock>
+                    <TextBlock FontSize="20" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Row="4">5</TextBlock>
+                    <TextBlock FontSize="20" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Row="5">6</TextBlock>
+                </Grid>
+
+
 
             </Grid>
 
 
         </DockPanel>
 
-        <ContentControl IsEnabled="True" x:Name="ActiveItem" Width="400" Height="300" Margin="50" />
+        <ContentControl IsEnabled="True" x:Name="ActiveItem" Width="800" Height="650" Margin="50" />
     </Grid>
 
 

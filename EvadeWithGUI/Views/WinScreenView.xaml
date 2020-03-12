@@ -14,19 +14,19 @@
                         <ColumnDefinition/>
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
-                    <Image Visibility="{Binding BearsWon, Mode=OneWay}" Height="150" Margin="0,20,0,0" Source="/Images/Pieces/WhiteKing.png"/>
-                    <Image Grid.Column="1" Visibility="{Binding PenguinsWon, Mode=OneWay}" Height="150" Margin="0,20,0,0" Source="/Images/Pieces/BlackKing.png"/>
+                    <Image Visibility="{Binding BearsWon, Mode=OneWay}" Height="250" Margin="0,60,0,0" Source="/Images/Pieces/WhiteKing.png"/>
+                    <Image Grid.Column="1" Visibility="{Binding PenguinsWon, Mode=OneWay}" Height="250" Margin="0,60,0,0" Source="/Images/Pieces/BlackKing.png"/>
                 </Grid>
-                <TextBlock HorizontalAlignment="Center" FontSize="45" FontWeight="Black" x:Name="WinMessage"></TextBlock>
-                <Grid Height="50">
+                <TextBlock HorizontalAlignment="Center" FontSize="60" FontWeight="Black" x:Name="WinMessage" Margin="0,50"></TextBlock>
+                <Grid Height="100" Margin="0,20">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition/>
                         <ColumnDefinition/>
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
-                    <Button x:Name="Save" Margin="5" FontSize="15">Save Game</Button>
-                    <Button x:Name="Exit" Margin="5" Grid.Column="1" FontSize="15">Exit</Button>
-                    <Button x:Name="Close" Margin="5" Grid.Column="2" FontSize="15">Cancel</Button>
+                    <Button x:Name="Save" Margin="5" FontSize="25">Save Game</Button>
+                    <Button x:Name="Exit" Margin="5" Grid.Column="1" FontSize="25">Exit</Button>
+                    <Button x:Name="Close" Margin="5" Grid.Column="2" FontSize="25">Cancel</Button>
                 </Grid>
             </StackPanel>
         </Border>

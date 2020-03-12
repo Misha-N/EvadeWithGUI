@@ -1,0 +1,104 @@
+﻿<UserControl x:Class="EvadeWithGUI.Views.AppControlView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:EvadeWithGUI.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid Background="White">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition Height="50"/>
+            </Grid.RowDefinitions>
+
+            <ScrollViewer>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition Height="20"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="3*"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel HorizontalAlignment="Center" Margin="15,0,10,0">
+                        <TextBlock FontSize="35" FontWeight="Bold" Margin="0,30,0,5">Game (Application) Control</TextBlock>
+                        <TextBlock FontSize="15" TextWrapping="Wrap">Application layout is divided into 4 main parts. Menu (top panel), GameHistory (right panel), StatusBar (bottom panel) and GameBoard (rest)</TextBlock>
+                        
+                        <TextBlock FontSize="20" FontWeight="Bold" Margin="0,30,0,5">New Game</TextBlock>
+                        <TextBlock FontSize="15">(Menu -> Game -> New Game)</TextBlock>
+                        <TextBlock FontSize="15">Player can start new game and set player difficulty/ AI control.</TextBlock>
+                        
+                        <TextBlock FontSize="20" FontWeight="Bold" Margin="0,30,0,5">Save Game</TextBlock>
+                        <TextBlock FontSize="15">(Menu -> Game -> Save Game)</TextBlock>
+                        <TextBlock FontSize="15">Player can save game. Format XML.</TextBlock>
+
+                        <TextBlock FontSize="20" FontWeight="Bold" Margin="0,30,0,5">Load Game</TextBlock>
+                        <TextBlock FontSize="15">(Menu -> Game -> Load Game)</TextBlock>
+                        <TextBlock FontSize="15">Player can load previously saved game. Format XML.</TextBlock>
+                        <TextBlock FontSize="15">Saved files are protected againt manipulation with hashcode.</TextBlock>
+
+                        <TextBlock FontSize="20" FontWeight="Bold" Margin="0,30,0,5">Exit Game</TextBlock>
+                        <TextBlock FontSize="15">(Menu -> Game -> Exit)</TextBlock>
+
+                        <TextBlock FontSize="20" FontWeight="Bold" Margin="0,30,0,5">Actions</TextBlock>
+                        <TextBlock FontSize="15">(Menu -> Actions)</TextBlock>
+                        <TextBlock FontSize="15" TextWrapping="Wrap" >Player can perform UNDO and REDO actions. Undo action can be done also by double click into game history panel.</TextBlock>
+
+                        <TextBlock FontSize="20" FontWeight="Bold" Margin="0,30,0,5">Settings</TextBlock>
+                        <TextBlock FontSize="15">(Menu -> Settings)</TextBlock>
+                        <TextBlock FontSize="15">Opens SettingsPage where can player set AI control and difficulty.</TextBlock>
+
+                        <TextBlock FontSize="20" FontWeight="Bold" Margin="0,30,0,5">Best Move</TextBlock>
+                        <TextBlock FontSize="15">(Menu -> Help -> Best Move)</TextBlock>
+                        <TextBlock FontSize="15"> NonAI player can get hint with best move.</TextBlock>
+
+                        <TextBlock FontSize="20" FontWeight="Bold" Margin="0,30,0,5">Rules</TextBlock>
+                        <TextBlock FontSize="15">(Menu -> Help -> Game Rules)</TextBlock>
+                        <TextBlock FontSize="15"> Opens RulesPage with game rules.</TextBlock>
+
+                        <TextBlock FontSize="20" FontWeight="Bold" Margin="0,30,0,5">Game History</TextBlock>
+                        <TextBlock FontSize="15">Right Panel</TextBlock>
+                        <TextBlock FontSize="15" TextWrapping="Wrap">There are 2 containers with performed moved. Player can Undo and Redo moves by clicking on buttons.</TextBlock>
+
+                        <TextBlock FontSize="20" FontWeight="Bold" Margin="0,30,0,5">Game Board</TextBlock>
+                        <TextBlock FontSize="15">Middle Panel</TextBlock>
+                        <TextBlock FontSize="15">Actions are done with clicking on tiles. See rules :)</TextBlock>
+
+                        <TextBlock FontSize="20" FontWeight="Bold" Margin="0,30,0,5">Status Bar</TextBlock>
+                        <TextBlock FontSize="15">Bottom Panel</TextBlock>
+                        <TextBlock FontSize="15" TextWrapping="Wrap">Player can see which color is on turn and if he clicked on best move hint in menu its displayed here. Player can also cancel calculation of best move here.</TextBlock>
+
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1">
+                        <TextBlock FontSize="25" FontWeight="Bold"  HorizontalAlignment="Center" Margin="0,35,0,0">Game Board</TextBlock>
+
+                        <Image Height="80" Margin="0,20,0,10" Source="/Images/Pieces/BlackKing.png"/>
+                        <TextBlock FontSize="15" FontWeight="Bold" HorizontalAlignment="Center"> Black (Penguin) King</TextBlock>
+                        <Image Height="80" Margin="0,20,0,10" Source="/Images/Pieces/WhiteKing.png"/>
+                        <TextBlock FontSize="15" FontWeight="Bold" HorizontalAlignment="Center"> White (Bear) King</TextBlock>
+                        <Image Height="80" Margin="0,20,0,10" Source="/Images/Pieces/BlackPawn.png"/>
+                        <TextBlock FontSize="15" FontWeight="Bold" HorizontalAlignment="Center"> Black (Penguin) Pawn</TextBlock>
+                        <Image Height="80" Margin="0,20,0,10" Source="/Images/Pieces/WhitePawn.png"/>
+                        <TextBlock FontSize="15" FontWeight="Bold" HorizontalAlignment="Center"> White (Bear) Pawn</TextBlock>
+                        <Image Height="80" Margin="0,20,0,10" Source="/Images/Textures/TextureFrozen.png"/>
+                        <TextBlock FontSize="15" FontWeight="Bold" HorizontalAlignment="Center"> Frozen Field</TextBlock>
+
+                    </StackPanel>
+
+
+                </Grid>
+
+            </ScrollViewer>
+
+            <Button x:Name="Close" Margin="5" Grid.Row="1" Width="200">Close</Button>
+
+        </Grid>
+
+
+    </Grid>
+</UserControl>

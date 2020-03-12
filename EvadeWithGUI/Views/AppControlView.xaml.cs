@@ -1,5 +1,4 @@
-﻿using EvadeWithGUI.ViewModels;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,25 +10,19 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace EvadeWithGUI.Views
 {
     /// <summary>
-    /// Interakční logika pro ShellView.xaml
+    /// Interakční logika pro AppControlView.xaml
     /// </summary>
-    public partial class ShellView : Window
+    public partial class AppControlView : UserControl
     {
-        public ShellView()
+        public AppControlView()
         {
             InitializeComponent();
-        }
-
-        private void History_MouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            ListBox lb = sender as ListBox;
-            int index = lb.SelectedIndex;
-            ((ShellViewModel)(this.DataContext)).HistoryUndo = index;
         }
     }
 }

@@ -1,0 +1,72 @@
+﻿<UserControl x:Class="EvadeWithGUI.Views.RulesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:EvadeWithGUI.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid Background="White">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition Height="50"/>
+            </Grid.RowDefinitions>
+
+            <ScrollViewer>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition Height="20"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="3*"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel HorizontalAlignment="Center" Margin="15,0,10,0">
+                        <TextBlock FontSize="35" FontWeight="Bold" Margin="0,30,0,5">Polar Wars (Evade)</TextBlock>
+                        <TextBlock FontSize="15">The game was launched in 1971 by 3M Company.</TextBlock>
+                        <TextBlock FontSize="20" FontWeight="Bold" Margin="0,30,0,5">Aim of the game</TextBlock>
+                        <TextBlock FontSize="15">Get your king (one of two) on the opposite side of the board.</TextBlock>
+                        <TextBlock FontSize="20" FontWeight="Bold" Margin="0,30,0,5">Default situation</TextBlock>
+                        <TextBlock FontSize="15" TextWrapping="Wrap">At the beginning of the game there are 2 kings in the middle rows in the outer rows, 4 ordinary stones on the remaining fields in the outer rows (see picture).</TextBlock>
+                        <TextBlock FontSize="20" FontWeight="Bold" Margin="0,30,0,5">Game</TextBlock>
+                        <TextBlock FontSize="15" Margin="10,0,0,0" >Players take turns regularly.</TextBlock>
+                        <TextBlock FontSize="15" Margin="10,0,0,0" TextWrapping="Wrap">Ordinary stone may be moved one field orthogonally or diagonally.</TextBlock>
+                        <TextBlock FontSize="15" Margin="10,0,0,0" TextWrapping="Wrap">If a stone is moved to a field that is already occupied by an opponent's stone (ordinary or king), both stones are frozen on that square and cannot be moved with them until the end of the game.</TextBlock>
+                        <TextBlock FontSize="15" Margin="10,0,0,0" TextWrapping="Wrap">Moving a stone to a field where the stone itself is located or where there are already two frozen stones is not allowed.</TextBlock>
+                        <TextBlock FontSize="15" Margin="10,0,0,0" TextWrapping="Wrap">The king can move one field diagonally or orthogonally, but only to a free field. It cannot freeze the opponent's stone.</TextBlock>
+                        <TextBlock FontSize="20" FontWeight="Bold" Margin="0,30,0,5">End of game</TextBlock>
+                        <TextBlock FontSize="15" Margin="10,0,0,0" TextWrapping="Wrap" >The player who converts his king to the extreme row on the opposite side of the board wins.</TextBlock>
+                        <TextBlock FontSize="15" Margin="10,0,0,0" >A player who cannot make a move loses.</TextBlock>
+                        <TextBlock FontSize="15" Margin="10,0,0,0" >If both players have their kings frozen, the game ends in a tie.</TextBlock>
+
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1">
+                        <Image Height="100" Margin="0,20,0,10" Source="/Images/Pieces/BlackKing.png"/>
+                        <TextBlock FontSize="15" FontWeight="Bold" HorizontalAlignment="Center"> Black (Penguin) King</TextBlock>
+                        <Image Height="100" Margin="0,20,0,10" Source="/Images/Pieces/WhiteKing.png"/>
+                        <TextBlock FontSize="15" FontWeight="Bold" HorizontalAlignment="Center"> White (Bear) King</TextBlock>
+                        <Image Height="100" Margin="0,20,0,10" Source="/Images/Pieces/BlackPawn.png"/>
+                        <TextBlock FontSize="15" FontWeight="Bold" HorizontalAlignment="Center"> Black (Penguin) Pawn</TextBlock>
+                        <Image Height="100" Margin="0,20,0,10" Source="/Images/Pieces/WhitePawn.png"/>
+                        <TextBlock FontSize="15" FontWeight="Bold" HorizontalAlignment="Center"> White (Bear) Pawn</TextBlock>
+                        <Image Height="100" Margin="0,20,0,10" Source="/Images/Textures/TextureFrozen.png"/>
+                        <TextBlock FontSize="15" FontWeight="Bold" HorizontalAlignment="Center"> Frozen Field</TextBlock>
+
+                    </StackPanel>
+
+
+                </Grid>
+
+            </ScrollViewer>
+
+            <Button x:Name="Close" Margin="5" Grid.Row="1" Width="200">Close</Button>
+
+        </Grid>
+        
+
+    </Grid>
+</UserControl>
